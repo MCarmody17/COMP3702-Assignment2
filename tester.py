@@ -34,7 +34,8 @@ Last updated by njc 15/08/22
 """
 
 THREADS = 1
-DEBUG_MODE = False      # set this to True to disable time limit checking (useful when running in a debugger)
+# set this to True to disable time limit checking (useful when running in a debugger)
+DEBUG_MODE = False
 
 TC_PREFIX = 'testcases/ex'
 TC_SUFFIX = '.txt'
@@ -101,11 +102,13 @@ def round_to_increment(score):
 
 
 def update_logfile(filename, tc_idx, total_score, max_score, tests):
-    total_score = math.ceil(total_score * (1 / MINIMUM_MARK_INCREMENT)) / (1 / MINIMUM_MARK_INCREMENT)
+    total_score = math.ceil(
+        total_score * (1 / MINIMUM_MARK_INCREMENT)) / (1 / MINIMUM_MARK_INCREMENT)
     msg0 = '\n\n=== Summary ============================================================'
     msg1 = f'Testcases: {tc_idx}'
     msg2 = f'Total Score: {round(total_score, 1)} (out of max possible score {max_score})'
-    log_data = {"output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n', "tests": tests}
+    log_data = {"output": msg0 + '\n' + msg1 +
+                '\n' + msg2 + '\n', "tests": tests}
     with open(filename, 'w') as outfile:
         json.dump(log_data, outfile)
 
@@ -157,7 +160,8 @@ def run_test_mp(filename_i_vis):
         msg1 = f'/!\\ Program crashed while Solver was being initialised on testcase {i}.'
         msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
         if int(sys.version.split('.')[1]) <= 9:
-            err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+            err = ''.join(traceback.format_exception(
+                etype=type(e), value=e, tb=e.__traceback__))
         else:
             err = ''.join(traceback.format_exception(e))
         test_result = {"score": 0,
@@ -195,7 +199,8 @@ def run_test_mp(filename_i_vis):
                 msg1 = f'/!\\ Program crashed in solver.vi_initialise() on testcase {i}.'
                 msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                 if int(sys.version.split('.')[1]) <= 9:
-                    err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                    err = ''.join(traceback.format_exception(
+                        etype=type(e), value=e, tb=e.__traceback__))
                 else:
                     err = ''.join(traceback.format_exception(e))
                 test_result = {"score": 0,
@@ -216,7 +221,8 @@ def run_test_mp(filename_i_vis):
                            f'V(s) computed.'
                     msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                     if int(sys.version.split('.')[1]) <= 9:
-                        err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                        err = ''.join(traceback.format_exception(
+                            etype=type(e), value=e, tb=e.__traceback__))
                     else:
                         err = ''.join(traceback.format_exception(e))
                     test_result = {"score": 0,
@@ -231,7 +237,8 @@ def run_test_mp(filename_i_vis):
                     msg1 = f'/!\\ Program crashed in solver.vi_iteration() on testcase {i}'
                     msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                     if int(sys.version.split('.')[1]) <= 9:
-                        err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                        err = ''.join(traceback.format_exception(
+                            etype=type(e), value=e, tb=e.__traceback__))
                     else:
                         err = ''.join(traceback.format_exception(e))
                     test_result = {"score": 0,
@@ -258,7 +265,8 @@ def run_test_mp(filename_i_vis):
                            f'V(s) computed.'
                     msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                     if int(sys.version.split('.')[1]) <= 9:
-                        err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                        err = ''.join(traceback.format_exception(
+                            etype=type(e), value=e, tb=e.__traceback__))
                     else:
                         err = ''.join(traceback.format_exception(e))
                     test_result = {"score": 0,
@@ -273,7 +281,8 @@ def run_test_mp(filename_i_vis):
                 msg1 = f'/!\\ Program crashed in solver.pi_initialise() on testcase {i}.'
                 msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                 if int(sys.version.split('.')[1]) <= 9:
-                    err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                    err = ''.join(traceback.format_exception(
+                        etype=type(e), value=e, tb=e.__traceback__))
                 else:
                     err = ''.join(traceback.format_exception(e))
                 test_result = {"score": 0,
@@ -294,7 +303,8 @@ def run_test_mp(filename_i_vis):
                            f'pi(s) computed.'
                     msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                     if int(sys.version.split('.')[1]) <= 9:
-                        err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                        err = ''.join(traceback.format_exception(
+                            etype=type(e), value=e, tb=e.__traceback__))
                     else:
                         err = ''.join(traceback.format_exception(e))
                     test_result = {"score": 0,
@@ -309,7 +319,8 @@ def run_test_mp(filename_i_vis):
                     msg1 = f'/!\\ Program crashed in solver.pi_iteration() on testcase {i}'
                     msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                     if int(sys.version.split('.')[1]) <= 9:
-                        err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                        err = ''.join(traceback.format_exception(
+                            etype=type(e), value=e, tb=e.__traceback__))
                     else:
                         err = ''.join(traceback.format_exception(e))
                     test_result = {"score": 0,
@@ -336,7 +347,8 @@ def run_test_mp(filename_i_vis):
                            f'pi(s) computed.'
                     msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                     if int(sys.version.split('.')[1]) <= 9:
-                        err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                        err = ''.join(traceback.format_exception(
+                            etype=type(e), value=e, tb=e.__traceback__))
                     else:
                         err = ''.join(traceback.format_exception(e))
                     test_result = {"score": 0,
@@ -356,7 +368,8 @@ def run_test_mp(filename_i_vis):
         msg1 = f'/!\\ Program crashed in solver.{control_env.solve_type}_plan_offline() on testcase {i}'
         msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
         if int(sys.version.split('.')[1]) <= 9:
-            err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+            err = ''.join(traceback.format_exception(
+                etype=type(e), value=e, tb=e.__traceback__))
         else:
             err = ''.join(traceback.format_exception(e))
         test_result = {"score": 0,
@@ -388,7 +401,8 @@ def run_test_mp(filename_i_vis):
                     msg1 = f'/!\\ Program crashed in solver.vi_select_action() on testcase {i}.'
                     msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                     if int(sys.version.split('.')[1]) <= 9:
-                        err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                        err = ''.join(traceback.format_exception(
+                            etype=type(e), value=e, tb=e.__traceback__))
                     else:
                         err = ''.join(traceback.format_exception(e))
                     test_result = {"score": 0,
@@ -403,7 +417,8 @@ def run_test_mp(filename_i_vis):
                     msg1 = f'/!\\ Program crashed in solver.pi_select_action() on testcase {i}.'
                     msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
                     if int(sys.version.split('.')[1]) <= 9:
-                        err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                        err = ''.join(traceback.format_exception(
+                            etype=type(e), value=e, tb=e.__traceback__))
                     else:
                         err = ''.join(traceback.format_exception(e))
                     test_result = {"score": 0,
@@ -430,7 +445,8 @@ def run_test_mp(filename_i_vis):
             msg1 = f'/!\\ Program crashed in solver.{m} on testcase {i}'
             msg2 = f'\nTestcase total score: 0.0 / {POINTS_PER_TESTCASE}'
             if int(sys.version.split('.')[1]) <= 9:
-                err = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
+                err = ''.join(traceback.format_exception(
+                    etype=type(e), value=e, tb=e.__traceback__))
             else:
                 err = ''.join(traceback.format_exception(e))
             test_result = {"score": 0,
@@ -450,10 +466,12 @@ def run_test_mp(filename_i_vis):
         # simulate outcome of action
         seed = (str(control_env.episode_seed) + state_stable_hash(persistent_state) +
                 stable_hash(visit_count[persistent_state]))
-        reward, persistent_state = control_env.perform_action(persistent_state, action, seed=seed)
+        reward, persistent_state = control_env.perform_action(
+            persistent_state, action, seed=seed)
 
         # updated visited state count (for de-randomisation)
-        visit_count[persistent_state] = visit_count.get(persistent_state, 0) + 1
+        visit_count[persistent_state] = visit_count.get(
+            persistent_state, 0) + 1
 
         # update episode reward
         total_reward += reward
@@ -466,7 +484,8 @@ def run_test_mp(filename_i_vis):
             time.sleep(VISUALISE_TIME_PER_STEP)
 
     # assign scores based on iterations, time to solve, total reward
-    completion_score = COMPLETION_POINTS if control_env.is_solved(persistent_state) else 0.0
+    completion_score = COMPLETION_POINTS if control_env.is_solved(
+        persistent_state) else 0.0
 
     reward_score = compute_score(REWARD_POINTS, REWARD_SCALING,
                                  -total_reward, -control_env.reward_tgt)
@@ -522,7 +541,8 @@ def main(arglist):
             visualise = True
             i += 1
         elif arglist[i] == '-l':
-            assert len(arglist) > i + 1, '/!\\ write_logfile is enabled but no filename is given'
+            assert len(arglist) > i + \
+                1, '/!\\ write_logfile is enabled but no filename is given'
             write_logfile = True
             results_filename = arglist[i + 1]
             i += 2
@@ -540,7 +560,8 @@ def main(arglist):
         for i in tc_idx:
             tc_filename = TC_PREFIX + str(i) + TC_SUFFIX
 
-            test_result, leaderboard_result = run_test_mp((tc_filename, i, visualise))
+            test_result, leaderboard_result = run_test_mp(
+                (tc_filename, i, visualise))
             tests.append(test_result)
             if leaderboard_result is not None:
                 leaderboard.append(leaderboard_result)
@@ -561,11 +582,13 @@ def main(arglist):
         print(t['output'])
 
     # generate summary and write results file
-    total_score = math.ceil(total_score * (1 / MINIMUM_MARK_INCREMENT)) / (1 / MINIMUM_MARK_INCREMENT)
+    total_score = math.ceil(
+        total_score * (1 / MINIMUM_MARK_INCREMENT)) / (1 / MINIMUM_MARK_INCREMENT)
     msg0 = '\n\n=== Summary ============================================================'
     msg1 = f'Testcases: {tc_idx}'
     msg2 = f'Total Score: {round(total_score, 1)} (out of max possible score {max_score})'
-    log_data = {"output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n', "tests": tests}
+    log_data = {"output": msg0 + '\n' + msg1 +
+                '\n' + msg2 + '\n', "tests": tests}
     # log_data = {"output": msg0 + '\n' + msg1 + '\n' + msg2 + '\n', "tests": tests, "leaderboard": leaderboard}
     print(log_data['output'])
     if write_logfile:

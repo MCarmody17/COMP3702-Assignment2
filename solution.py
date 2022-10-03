@@ -5,6 +5,7 @@ from constants import *
 from environment import *
 from state import State
 import heapq
+import numpy as np
 """
 solution.py
 
@@ -57,14 +58,6 @@ class Solver:
             n_expanded += 1
             node = heapq.heappop(states)
 
-            # check if this state is the goal
-            # if env.is_solved(node):
-            # print("solved")
-            #    print("Container", len(states))
-            #    print("Visited:", len(visited))
-            #    return visited
-
-            # add unvisited successors to states
             successors = node.get_successors()
             for s in successors:
                 if s not in visited.keys():
@@ -93,11 +86,6 @@ class Solver:
         #
         # In order to ensure compatibility with tester, you should avoid adding additional arguments to this function.
         #
-        # for s in self.states:
-        #   print("values: ")
-        # print(self.values[s])z
-        # print("new values: ")
-        # print(self.new_values[s])
 
         if(self.converged is True):
             return True
@@ -118,18 +106,44 @@ class Solver:
         PCCW = self.environment.drift_ccw_probs
         PDM = self.environment.double_move_probs
 
-        # return{[0.05*(1-0.25)], [0.05*(1-0.25)], [0.05*0.25], [0.05*0.25], [0.25]}
-        # print((0.05*0.75)+(0.05*0.75)+(0.05*0.25)+(0.05*0.25)+0.25)
-        # if a == FORWARD:
-        p_normal_move = 0.675
-        p_double_move = 0.25
-        p_drift_left = 0.05
-        p_drift_right = 0.05
-        p_drift_left_double_move = 0.05 * (0.675*0.675)
-        p_drift_right_double_move = 0.05 * (0.675*0.675)
-
         # ----> ADD ONE FOR EACH ACTION
-        return{(FORWARD): 0.675, (FORWARD, FORWARD): p_double_move, (SPIN_LEFT): p_drift_left, (SPIN_RIGHT): p_drift_right, (SPIN_LEFT, FORWARD, FORWARD): p_drift_left_double_move, (SPIN_RIGHT, FORWARD, FORWARD): p_drift_right_double_move}
+
+        if a == FORWARD:
+            p_normal_move = 0.675
+            p_double_move = 0.25
+            p_drift_left = 0.05
+            p_drift_right = 0.05
+            p_drift_left_double_move = 0.05 * (0.675*0.675)
+            p_drift_right_double_move = 0.05 * (0.675*0.675)
+            return{(FORWARD, FORWARD): p_double_move, (SPIN_LEFT): p_drift_left, (SPIN_RIGHT): p_drift_right, (SPIN_LEFT, FORWARD, FORWARD): p_drift_left_double_move, (SPIN_RIGHT, FORWARD, FORWARD): p_drift_right_double_move, (FORWARD): 0.675}
+        elif a == REVERSE:
+            p_normal_move = 0.855
+            p_double_move = 0.1
+            p_drift_left = 0.025
+            p_drift_right = 0.025
+            p_drift_left_double_move = 0.0025
+            p_drift_right_double_move = 0.0025
+            return{(FORWARD, FORWARD): p_double_move, (SPIN_LEFT): p_drift_left, (SPIN_RIGHT): p_drift_right, (SPIN_LEFT, FORWARD, FORWARD): p_drift_left_double_move, (SPIN_RIGHT, FORWARD, FORWARD): p_drift_right_double_move, (FORWARD): 0.855}
+        return{(FORWARD, FORWARD): 0.25, (SPIN_LEFT): 0.05, (SPIN_RIGHT): 0.05, (SPIN_LEFT, FORWARD, FORWARD): 0.02278, (SPIN_RIGHT, FORWARD, FORWARD): 0.02778, (FORWARD): 0.675}
+
+    def get_transition_probabilities(self, state, action):
+        probabilities = dict()
+        for action_combinations, prob in self.stoch_action(action).items():
+            actions = action_combinations
+            next_state = state
+
+            # for a in actions:
+            _, next_state = self.environment.apply_dynamics(
+                next_state, action)
+
+            probabilities[next_state] = probabilities.get(next_state, 0) + prob
+        return probabilities
+
+    def get_reward(self, s):
+        """ Returns the reward for being in state s. """
+        if s == self.environment.is_solved(s):
+            return 0
+        return self.rewards.get(s, 0)
 
     def vi_iteration(self):
         """
@@ -152,8 +166,9 @@ class Solver:
             for a in ROBOT_ACTIONS:
                 total = 0
                 for stoch_action, p in self.stoch_action(a).items():
-                    reward, s_next = self.environment.perform_action(  # Perform action VS dynamics??
+                    reward, s_next = self.environment.apply_dynamics(  # Perform action VS dynamics??
                         s, a)
+                    print(reward)
                     total += p * (reward + (self.environment.gamma *
                                             self.values[s_next]))
                 action_values[a] = total
@@ -224,7 +239,70 @@ class Solver:
         #
         # In order to ensure compatibility with tester, you should avoid adding additional arguments to this function.
         #
-        pass
+
+        state = self.environment.get_init_state()
+
+        self.states = []
+        states = [state]
+        heapq.heapify(states)
+        self.differences = []
+        self.converged = False
+
+        # dict: state --> path_cost
+        visited = {state: 0}
+        n_expanded = 0
+
+        while len(states) > 0:
+            # self.loop_counter.inc()
+            n_expanded += 1
+            node = heapq.heappop(states)
+
+            successors = node.get_successors()
+            for s in successors:
+                if s not in visited.keys():
+                    visited[s] = s.path_cost
+                    heapq.heappush(states, s)
+
+        print("Visited:", len(visited))
+
+        self.states = visited
+        self.statesL = list(self.states)
+
+        self.values = {state: 0 for state in self.states}
+        self.policy = {pi: FORWARD for pi in self.states}
+        self.r = [0 for s in self.states]
+        self.r = [0 for state in self.states]
+        self.USE_LIN_ALG = False
+
+        # Transition Matrix
+        self.t_model = np.zeros(
+            [len(self.states), len(ROBOT_ACTIONS), len(self.states)])
+        for index, state in enumerate(self.states):
+            for j, a in enumerate(ROBOT_ACTIONS):
+                transitions = self.get_transition_probabilities(state, a)
+                for next_state, prob in transitions.items():
+                    # This may not be correct?
+                    self.states = list(self.states)
+                    self.t_model[index][j][self.states.index(
+                        next_state)] = prob
+
+        # reward vector
+        r_model = np.zeros([len(self.states)])
+        for index, state in enumerate(self.states):
+            rewards = []
+            for action in ROBOT_ACTIONS:
+                reward, _ = self.environment.apply_dynamics(state, action)
+                rewards.append(reward)
+            r_model[index] = min(rewards)
+        self.r_model = r_model
+
+        print(self.r_model)
+
+        # lin alg policy
+        la_policy = np.zeros([len(self.states)], dtype=np.int64)
+        for index, state in enumerate(self.states):
+            la_policy[index] = 1
+        self.la_policy = la_policy
 
     def pi_is_converged(self):
         """
@@ -236,7 +314,12 @@ class Solver:
         #
         # In order to ensure compatibility with tester, you should avoid adding additional arguments to this function.
         #
-        pass
+        if(self.converged is True):
+            print("ITS TRUE?")
+            return True
+        else:
+            print("Its false?")
+            return False
 
     def pi_iteration(self):
         """
@@ -248,7 +331,37 @@ class Solver:
         #
         # In order to ensure compatibility with tester, you should avoid adding additional arguments to this function.
         #
-        pass
+        print("Do we even get here?")
+        if self.USE_LIN_ALG:
+            print("we get new pol?")
+            new_policy = {s: ROBOT_ACTIONS[self.la_policy[i]]
+                          for i, s in enumerate(self.states)}
+        else:
+            new_policy = {}
+            for s in self.states:
+                action_values = {}
+
+                for a in ROBOT_ACTIONS:
+                    total = 0
+                    for stoch_action, p in self.stoch_action(a).items():
+                        reward, s_next = self.environment.perform_action(  # Perform action VS dynamics??
+                            s, a)
+
+                        total += p * (reward + (self.environment.gamma *
+                                                self.values[s_next]))
+                    action_values[a] = total
+                # Update state value with best action
+
+                new_policy[s] = dict_argmax(action_values)
+
+        if new_policy == self.policy:
+            self.converged = True
+
+        self.policy = new_policy
+        if self.USE_LIN_ALG:
+            for i, s in enumerate(self.grid.states):
+                self.la_policy[i] = self.policy[s]
+        return new_policy
 
     def pi_plan_offline(self):
         """
@@ -270,7 +383,7 @@ class Solver:
         #
         # In order to ensure compatibility with tester, you should avoid adding additional arguments to this function.
         #
-        pass
+        return self.policy[state]
 
     # === Helper Methods ===============================================================================================
     #
